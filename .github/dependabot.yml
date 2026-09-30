@@ -5,8 +5,11 @@ updates:
     schedule:
       interval: weekly
     ignore:
-      # The generator must not reference a Roslyn newer than the oldest supported SDK (.NET 8 SDK = 4.8).
+      # The generator must not reference a Roslyn newer than the oldest supported SDK (.NET 8 SDK ships 4.9).
+      # Newer Microsoft.CodeAnalysis.Analyzers releases are built against newer compilers too (5.x needs
+      # 4.12) and fail with CS9057 on the .NET 8 SDK, so both stay pinned; bump them together, deliberately.
       - dependency-name: Microsoft.CodeAnalysis.CSharp
+      - dependency-name: Microsoft.CodeAnalysis.Analyzers
 
   - package-ecosystem: github-actions
     directory: /
