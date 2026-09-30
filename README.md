@@ -17,7 +17,7 @@ This is the companion code for the blog post
 
 ## Results
 
-Native AOT, osx-arm64, .NET SDK 8.0.203. Discovery time is the median of 7 runs of `--probe`.
+Native AOT, osx-arm64, .NET SDK 8.0.203, Anka 0.0.1-beta.6. Discovery time is the median of 7 runs of `--probe`.
 
 | | Reflection scanning | Source generator |
 |---|---:|---:|
@@ -25,11 +25,14 @@ Native AOT, osx-arm64, .NET SDK 8.0.203. Discovery time is the median of 7 runs 
 | Routes found under Native AOT | **0** | 3 |
 | `GET /ping` under Native AOT | 404 | 200 `pong` |
 | Trim/AOT warnings at publish | 4 | 0 |
-| Binary size | 3.43 MB | 2.67 MB |
+| Binary size | 3.48 MB | 2.70 MB |
 | Discovery time, AOT | ~78 µs (finds nothing) | ~6 µs (nothing to discover) |
 | Allocation per request for the path | yes (`req.Path` → `string`) | none (`req.PathBytes`) |
 
 The first four rows are the point. The microsecond numbers are noise-level for three handlers.
+
+The blog post was measured with Anka 0.0.1-beta.4 (3.43 MB vs 2.67 MB). Both binaries grew by the same ~30 KB
+with the features added to Anka since; the gap between them and every other row are unchanged.
 
 ## Layout
 
@@ -109,7 +112,8 @@ What the reflection version would only find out at runtime, if at all, becomes a
 ## Where the binary size difference comes from
 
 Measured by publishing variants of the same app that each add one reflection API, then diffing the ILC map files
-with `tools/mapdiff.py`. Absolute sizes vary slightly with the toolchain; the deltas are what matter.
+with `tools/mapdiff.py` (Anka 0.0.1-beta.4). Absolute sizes vary slightly with the toolchain and the Anka
+version; the deltas are what matter.
 
 | Step | Δ size |
 |---|---:|
