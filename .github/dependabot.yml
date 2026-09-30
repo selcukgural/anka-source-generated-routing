@@ -1,0 +1,14 @@
+version: 2
+updates:
+  - package-ecosystem: nuget
+    directory: /
+    schedule:
+      interval: weekly
+    ignore:
+      # The generator must not reference a Roslyn newer than the oldest supported SDK (.NET 8 SDK = 4.8).
+      - dependency-name: Microsoft.CodeAnalysis.CSharp
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly

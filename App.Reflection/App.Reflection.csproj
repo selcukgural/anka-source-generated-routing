@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <PublishAot>true</PublishAot>
+    <!-- This project exists to show these warnings; keep them visible but don't fail the build. -->
+    <WarningsNotAsErrors>$(WarningsNotAsErrors);IL2026;IL2062;IL2072</WarningsNotAsErrors>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../Anka.Routing/Anka.Routing.csproj" />
+    <Compile Include="../Shared/Handlers.cs" />
+  </ItemGroup>
+
+</Project>

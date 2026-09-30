@@ -1,0 +1,51 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  aot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Install Native AOT prerequisites
+        run: sudo apt-get update && sudo apt-get install -y clang zlib1g-dev
+
+      - name: Build
+        run: dotnet build AnkaSourceGeneratedRouting.slnx -c Release
+
+      - name: JIT — reflection discovers every route
+        run: |
+          dotnet App.Reflection/bin/Release/net8.0/App.Reflection.dll --probe | tee jit.txt
+          grep -q "discovered=3" jit.txt
+
+      - name: Publish (Native AOT)
+        run: |
+          dotnet publish App.Generated  -c Release -r linux-x64 -o out/generated
+          dotnet publish App.Reflection -c Release -r linux-x64 -o out/reflection
+          ls -l out/generated/App.Generated out/reflection/App.Reflection
+
+      - name: AOT smoke test
+        run: |
+          ./out/generated/App.Generated --probe | tee gen.txt
+          grep -q "discovered=3" gen.txt
+
+          # The failure mode this repository documents: under Native AOT the scan finds nothing.
+          ./out/reflection/App.Reflection --probe | tee refl.txt
+          grep -q "discovered=0" refl.txt
+
+          ./out/generated/App.Generated 8080 &
+          for i in $(seq 1 20); do curl -fsS localhost:8080/ping && break; sleep 0.5; done | grep -qx pong

@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <PublishAot>true</PublishAot>
+    <!-- Writes RouteTable.g.cs to obj/<config>/net8.0/generated/ so you can read it. -->
+    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../Anka.Routing/Anka.Routing.csproj" />
+    <ProjectReference Include="../Anka.Routing.Generator/Anka.Routing.Generator.csproj"
+                      OutputItemType="Analyzer"
+                      ReferenceOutputAssembly="false" />
+    <Compile Include="../Shared/Handlers.cs" />
+  </ItemGroup>
+
+</Project>
