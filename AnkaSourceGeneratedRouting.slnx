@@ -1,6 +1,0 @@
-<Solution>
-  <Project Path="Anka.Routing/Anka.Routing.csproj" />
-  <Project Path="Anka.Routing.Generator/Anka.Routing.Generator.csproj" />
-  <Project Path="App.Generated/App.Generated.csproj" />
-  <Project Path="App.Reflection/App.Reflection.csproj" />
-</Solution>

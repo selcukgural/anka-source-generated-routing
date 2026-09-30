@@ -10,6 +10,12 @@ permissions:
 
 jobs:
   aot:
+    name: native aot (sdk ${{ matrix.sdk }})
+    strategy:
+      fail-fast: false
+      matrix:
+        # 8.0.x is the oldest SDK the README promises; the generator's Roslyn references must load there.
+        sdk: ['8.0.x', '10.0.x']
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -18,14 +24,24 @@ jobs:
           persist-credentials: false
 
       - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        id: setup
         with:
-          dotnet-version: 8.0.x
+          dotnet-version: ${{ matrix.sdk }}
+
+      # The runner image ships newer SDKs and global.json rolls forward to the latest one, which would hide a
+      # break on older SDKs. Pin this job to the SDK it just installed.
+      - name: Pin SDK
+        env:
+          SDK_VERSION: ${{ steps.setup.outputs.dotnet-version }}
+        run: |
+          dotnet new globaljson --sdk-version "$SDK_VERSION" --roll-forward latestPatch --force
+          dotnet --version
 
       - name: Install Native AOT prerequisites
         run: sudo apt-get update && sudo apt-get install -y clang zlib1g-dev
 
       - name: Build
-        run: dotnet build AnkaSourceGeneratedRouting.slnx -c Release
+        run: dotnet build AnkaSourceGeneratedRouting.sln -c Release
 
       - name: JIT — reflection discovers every route
         run: |
@@ -48,4 +64,4 @@ jobs:
           grep -q "discovered=0" refl.txt
 
           ./out/generated/App.Generated 8080 &
-          for i in $(seq 1 20); do curl -fsS localhost:8080/ping && break; sleep 0.5; done | grep -qx pong
+          for _ in $(seq 1 20); do curl -fsS localhost:8080/ping && break; sleep 0.5; done | grep -qx pong
